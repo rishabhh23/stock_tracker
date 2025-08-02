@@ -1,5 +1,3 @@
-import type { NextRequest } from "next/server";
-
 interface QuoteItem {
   last_price: number | null;
 }
