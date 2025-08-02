@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { table } from "@/app/lib/airtable";
 
 export async function DELETE(
-  _req: Request,
-  { params }: { params: { id: string } }
+  _request: Request,
+  context: { params: { id: string } }
 ) {
-  await table.destroy(params.id);
+  const { id } = context.params;
+
+  await table.destroy(id);
   return NextResponse.json({ ok: true });
 }
