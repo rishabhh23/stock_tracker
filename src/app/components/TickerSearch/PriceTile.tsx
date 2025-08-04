@@ -7,7 +7,7 @@ import { Instrument } from "@/app/types";
 type Props = { instrument: Instrument };
 
 export default function PriceTile({ instrument }: Props) {
-  const { actualPrice, prevClose, isLoading, error } = useLivePrice(
+  const { price, prevClose, isLoading, error } = useLivePrice(
     instrument.instrument_key
   );
 
@@ -16,8 +16,8 @@ export default function PriceTile({ instrument }: Props) {
     display = "Loading…";
   } else if (error) {
     display = "Error";
-  } else if (actualPrice != null) {
-    display = `₹${actualPrice.toFixed(2)}`;
+  } else if (price != null) {
+    display = `₹${price.toFixed(2)}`;
   } else if (prevClose != null) {
     display = `₹${prevClose.toFixed(2)} (Prev Close)`;
   } else {

@@ -1,6 +1,4 @@
 @import "tailwindcss";
-
-* {
-  box-sizing: border-box;
-  align-items: center;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

@@ -30,8 +30,8 @@ export default function WatchlistTable() {
 
   return (
     <table className="mt-6 w-full border-2 rounded-lg border-gray-500">
-      <thead>
-        <tr className="bg-gray-100 text-center text-lg font-semibold">
+      <thead className="border-b-2 ">
+        <tr className="text-center text-lg font-semibold">
           <th className="p-2">Symbol</th>
           <th className="p-2">Prev&nbsp;Close</th>
           <th className="p-2">Current Price</th>

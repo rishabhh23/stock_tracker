@@ -51,7 +51,7 @@ export default function SearchBar({ onSelect }: Props) {
                   setQuery(s.symbol);
                   setOpen(false);
                 }}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-100 flex justify-between"
+                className="text-black px-4 py-2 cursor-pointer hover:bg-gray-100 flex justify-between"
               >
                 <span className="font-medium">{s.symbol}</span>
                 <span className="text-xs text-gray-500 ml-2">{s.name}</span>

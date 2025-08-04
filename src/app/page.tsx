@@ -35,9 +35,9 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-200 p-4 flex flex-col items-center">
+    <main className="min-h-screen rounded-lg bg-[linear-gradient(90deg,_#0F141B_0%,_#182029_20%,_#243240_45%,_#354554_70%,_#485462_100%)] p-4 flex flex-col items-center text-slate-200 text-2xl">
       <h1 className="text-4xl font-extrabold mt-10 mb-6 text-center">
-        Upstox&nbsp;Live&nbsp;Price&nbsp;Tracker
+        Live&nbsp;Price&nbsp;Tracker
       </h1>
 
       <SearchBar onSelect={handleSelect} />
