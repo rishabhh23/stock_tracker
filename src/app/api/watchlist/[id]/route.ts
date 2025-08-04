@@ -3,10 +3,10 @@ import { table } from "@/app/lib/airtable";
 
 export async function DELETE(
   _request: Request,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params;
-
+  const { id } = await context.params;
   await table.destroy(id);
+
   return NextResponse.json({ ok: true });
 }

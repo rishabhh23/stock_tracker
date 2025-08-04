@@ -5,42 +5,46 @@ import { promisify } from "util";
 const gunzipAsync = promisify(gunzip);
 export const runtime = "nodejs";
 
+/** in-memory cache for this Node.js instance */
+let cachedInstruments: Array<{
+  trading_symbol: string;
+  instrument_key: string;
+  name: string;
+  exchange: string;
+  instrument_type: string;
+}> | null = null;
+
 export async function GET(req: NextRequest) {
   const query = (req.nextUrl.searchParams.get("query") || "").toLowerCase();
-  if (!query) {
-    return NextResponse.json({ results: [] });
-  }
+  if (!query) return NextResponse.json({ results: [] });
 
-  const url =
-    "https://assets.upstox.com/market-quote/instruments/exchange/complete.json.gz";
+  // Load + gunzip + parse exactly once per cold-start
+  if (!cachedInstruments) {
+    const url =
+      "https://assets.upstox.com/market-quote/instruments/exchange/complete.json.gz";
 
-  const res = await fetch(url, {
-    cache: "force-cache",
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Compatible; Upstox API Client)",
-    },
-  });
-  if (!res.ok) {
-    return new NextResponse("Failed to fetch instruments", {
-      status: res.status,
+    const res = await fetch(url, {
+      cache: "no-store",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Compatible; Upstox API Client)",
+      },
     });
+    if (!res.ok)
+      return new NextResponse("Failed to fetch instruments", {
+        status: res.status,
+      });
+
+    const zipped = Buffer.from(await res.arrayBuffer());
+    const jsonBuf = await gunzipAsync(zipped);
+    cachedInstruments = JSON.parse(jsonBuf.toString("utf8"));
   }
 
-  const buf = await res.arrayBuffer();
-  const jsonBuf = await gunzipAsync(Buffer.from(buf));
-  const all = JSON.parse(jsonBuf.toString("utf8")) as Array<{
-    trading_symbol: string;
-    instrument_key: string;
-    name: string;
-    exchange: string;
-    instrument_type: string;
-  }>;
-
-  const results = all
+  // Filter top 10 matches
+  const results = cachedInstruments!
     .filter(
       (inst) =>
-        inst.trading_symbol.toLowerCase().includes(query) &&
-        inst.instrument_type === "EQ"
+        inst.instrument_type === "EQ" &&
+        inst.trading_symbol.toLowerCase().includes(query)
     )
     .slice(0, 10)
     .map((inst) => ({
