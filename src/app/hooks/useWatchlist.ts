@@ -9,6 +9,7 @@ export interface WatchRow {
   prev_close?: number;
   instrument_key?: string;
   name?: string;
+  change_5d?: number;
 }
 
 const fetcher = (url: string): Promise<WatchRow[]> =>

@@ -5,14 +5,21 @@ import useLivePrice from "@/app/hooks/useLivePrice";
 
 function LivePriceCell({ row }: { row: WatchRow }) {
   const { price, prevClose, isLoading } = useLivePrice(row.instrument_key!);
+  const pct5d = row.change_5d ?? null;
+
+  const color = (v: number | null) =>
+    v == null ? "text-gray-500" : v >= 0 ? "text-green-600" : "text-red-600";
 
   return (
     <>
       <td className="p-2">
-        {isLoading ? "…" : price != null ? `₹${price.toFixed(2)}` : "—"}
+        {isLoading ? "…" : prevClose != null ? `₹${prevClose.toFixed(2)}` : "—"}
       </td>
       <td className="p-2">
-        {isLoading ? "…" : prevClose != null ? `₹${prevClose.toFixed(2)}` : "—"}
+        {isLoading ? "…" : price != null ? `₹${price.toFixed(2)}` : "—"}
+      </td>
+      <td className={`p-2 ${color(pct5d)}`}>
+        {pct5d != null ? `${pct5d.toFixed(2)} %` : "NULL"}
       </td>
     </>
   );
@@ -35,6 +42,7 @@ export default function WatchlistTable() {
           <th className="p-2">Symbol</th>
           <th className="p-2">Prev&nbsp;Close</th>
           <th className="p-2">Current Price</th>
+          <th className="p-2">% 5-Day</th>
           <th className="p-2" />
         </tr>
       </thead>
