@@ -1,80 +1,91 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSWRConfig } from "swr";
 import useWatchlist from "@/app/hooks/useWatchlist";
 import useLivePrice from "@/app/hooks/useLivePrice";
 import { WatchRow } from "../types";
 
-function AnchorCell({ row }: { row: WatchRow }) {
-  const [temp, setTemp] = useState<string | undefined>(undefined);
+const color = (v: number | null) =>
+  v == null ? "text-gray-500" : v >= 0 ? "text-green-600" : "text-red-600";
 
+function WatchlistRow({
+  row,
+  onDelete,
+}: {
+  row: WatchRow;
+  onDelete: (id: string) => void;
+}) {
+  const { price, prevClose, isLoading } = useLivePrice(row.instrument_key!);
   const { mutate: revalidate } = useSWRConfig();
+  const [anchor, setAnchor] = useState<number | null>(null);
 
-  async function save() {
-    const val = Number(temp ?? row.anchor_price);
-    if (!isFinite(val)) return;
+  useEffect(() => {
+    if (price != null) setAnchor(price);
+  }, [price]);
 
+  async function saveAnchor() {
+    if (anchor == null || !isFinite(anchor)) return;
     await fetch(`/api/watchlist/${row.id}/anchor`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ anchor_price: val }),
+      body: JSON.stringify({ anchor_price: anchor }),
     });
-
     revalidate("/api/watchlist");
   }
 
-  return (
-    <input
-      className="w-24 border rounded px-1 text-center"
-      placeholder="₹"
-      defaultValue={row.anchor_price ?? ""}
-      onChange={(e) => setTemp(e.target.value)}
-      onBlur={save}
-    />
-  );
-}
+  const effectivePrice = price ?? prevClose ?? null;
 
-function LivePriceCell({ row }: { row: WatchRow }) {
-  const { price, prevClose, isLoading } = useLivePrice(row.instrument_key!);
-  const pct5d = row.change_5d ?? null;
-
-  // Anchor % = (Price - Anchor) / Anchor *100
-  const anchorPct =
-    price != null && row.anchor_price
-      ? ((price - row.anchor_price) / row.anchor_price) * 100
+  const pctChange =
+    anchor != null && effectivePrice != null
+      ? ((effectivePrice - anchor) / anchor) * 100
       : null;
 
-  const color = (v: number | null) =>
-    v == null ? "text-gray-500" : v >= 0 ? "text-green-600" : "text-red-600";
+  const pct5d: number | null = row.change_5d ?? null;
 
   return (
-    <>
-      {/* Prev Close */}
+    <tr className="text-center">
+      <td className="p-2">{row.symbol}</td>
+
       <td className="p-2">
         {isLoading ? "…" : prevClose != null ? `₹${prevClose.toFixed(2)}` : "—"}
       </td>
 
-      {/* Current Price */}
       <td className="p-2">
         {isLoading ? "…" : price != null ? `₹${price.toFixed(2)}` : "—"}
       </td>
 
-      {/* % 5-Day */}
       <td className={`p-2 ${color(pct5d)}`}>
         {pct5d != null ? `${pct5d.toFixed(2)} %` : "—"}
       </td>
 
-      {/* Anchor Price input */}
       <td className="p-2">
-        <AnchorCell row={row} />
+        <input
+          className="w-24 border rounded px-1 text-center"
+          placeholder="₹"
+          value={anchor ?? ""}
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            setAnchor(isFinite(v) ? v : null);
+          }}
+          onBlur={saveAnchor}
+          onKeyDown={(e) => e.key === "Enter" && saveAnchor()}
+        />
       </td>
 
-      {/* % vs Anchor */}
-      <td className={`p-2 ${color(anchorPct)}`}>
-        {anchorPct != null ? `${anchorPct.toFixed(2)} %` : "—"}
+      <td className={`p-2 ${color(pctChange)}`}>
+        {pctChange != null ? `${pctChange.toFixed(2)} %` : "—"}
       </td>
-    </>
+
+      <td className="p-2">
+        <button
+          onClick={() => onDelete(row.id)}
+          className="text-red-600 hover:underline"
+        >
+          Delete
+        </button>
+      </td>
+    </tr>
   );
 }
 
@@ -90,31 +101,20 @@ export default function WatchlistTable() {
 
   return (
     <table className="mt-6 w-full border-2 rounded-lg border-gray-500">
-      <thead className="border-b-2 ">
+      <thead className="border-b-2">
         <tr className="text-center text-lg font-semibold">
           <th className="p-2">Symbol</th>
           <th className="p-2">Prev&nbsp;Close</th>
           <th className="p-2">Current&nbsp;Price</th>
           <th className="p-2">%&nbsp;5-Day</th>
           <th className="p-2">Anchor&nbsp;Price</th>
-          <th className="p-2">%&nbsp;vs&nbsp;Anchor</th>
+          <th className="p-2">%&nbsp;Change</th>
           <th className="p-2" />
         </tr>
       </thead>
       <tbody>
         {rows.map((r) => (
-          <tr key={r.id} className="text-center">
-            <td className="p-2">{r.symbol}</td>
-            <LivePriceCell row={r} />
-            <td className="p-2">
-              <button
-                onClick={() => deleteRow(r.id)}
-                className="text-red-600 hover:underline"
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
+          <WatchlistRow key={r.id} row={r} onDelete={deleteRow} />
         ))}
       </tbody>
     </table>
