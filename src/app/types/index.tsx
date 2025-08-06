@@ -22,3 +22,15 @@ export interface WatchFields {
   prev_close?: number;
   change_5d?: number;
 }
+
+export interface WatchRow {
+  id: string;
+  symbol: string;
+  instrument_key?: string;
+  name?: string;
+  last_price?: number;
+  prev_close?: number;
+  change_5d?: number;
+  change_5d_ref_date?: string;
+  anchor_price?: number;
+}
