@@ -21,6 +21,7 @@ export interface WatchFields {
   last_price?: number;
   prev_close?: number;
   change_5d?: number;
+  anchor_price?: number;
 }
 
 export interface WatchRow {

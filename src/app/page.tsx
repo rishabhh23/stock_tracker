@@ -12,21 +12,16 @@ export default function Home() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function handleSelect(i: Instrument) {
-    setErrorMsg(null);
-    setAdding(true);
     try {
+      setErrorMsg(null);
+      setAdding(true);
       const res = await fetch("/api/watchlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(i),
       });
-
-      if (!res.ok) {
-        const text = await res.text(); // <- read server error
-        throw new Error(text || "Add failed");
-      }
-
-      await mutate(); // refresh table
+      if (!res.ok) throw new Error((await res.text()) || "Add failed");
+      await mutate();
     } catch (err) {
       setErrorMsg((err as Error).message);
     } finally {
@@ -35,18 +30,27 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen rounded-lg bg-[linear-gradient(90deg,_#0F141B_0%,_#182029_20%,_#243240_45%,_#354554_70%,_#485462_100%)] p-4 flex flex-col items-center text-slate-200 text-2xl">
-      <h1 className="text-4xl font-extrabold mt-10 mb-6 text-center">
+    <main className="min-h-screen flex flex-col items-center bg-growwBg text-black px-4 sm:px-8 lg:px-10 py-8">
+      <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold mt-6 mb-10 text-center leading-tight tracking-wide">
         Live&nbsp;Price&nbsp;Tracker
       </h1>
 
-      <SearchBar onSelect={handleSelect} />
-      {adding && (
-        <p className="mt-2 text-sm text-gray-500 animate-pulse">Adding…</p>
-      )}
-      {errorMsg && <p className="mt-2 text-sm text-red-600">{errorMsg}</p>}
+      <div className="w-full max-w-3xl items-center">
+        <SearchBar onSelect={handleSelect} />
+      </div>
 
-      <WatchlistTable />
+      {adding && (
+        <p className="mt-4 text-xl sm:text-2xl text-gray-300 animate-pulse">
+          Adding…
+        </p>
+      )}
+      {errorMsg && (
+        <p className="mt-4 text-xl sm:text-2xl text-red-400">{errorMsg}</p>
+      )}
+
+      <div className="w-full rounded-lg max-w-7xl mt-12 overflow-x-auto text-xl sm:text-2xl">
+        <WatchlistTable />
+      </div>
     </main>
   );
 }

@@ -2,17 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { table } from "@/app/lib/airtable";
 import { fetchPriceData } from "@/app/lib/pricing";
 import { getDailyCandlesV3 } from "@/app/lib/history";
+import { WatchFields } from "@/app/types";
 
 export const runtime = "nodejs";
-
-type WatchFields = {
-  symbol: string;
-  instrument_key: string;
-  name: string;
-  last_price?: number;
-  prev_close?: number;
-  change_5d?: number;
-};
 
 type AirtableRec<T> = { id: string; fields: T };
 
@@ -21,7 +13,7 @@ export async function GET() {
     .select({})
     .firstPage()) as unknown as AirtableRec<WatchFields>[];
 
-  const payload = records.map((r) => ({ id: r.id, ...r.fields }));
+  const payload = records.map(({ id, fields }) => ({ id, ...fields }));
   return NextResponse.json(payload);
 }
 
@@ -33,31 +25,24 @@ export async function POST(req: NextRequest) {
       name: string;
     };
 
-    // 1) Live price + previous close
     const { actualPrice, prevClose } = await fetchPriceData(
       body.instrument_key
     );
 
-    // 2) Use Upstox v3 to fetch enough days to survive weekends/holidays
-    //    We take the most recent trading day and the one 5 trading sessions earlier
-    let pct5d: number | undefined = undefined;
-    const bars = await getDailyCandlesV3(body.instrument_key, 30); // oldest → newest
-
+    let pct5d: number | undefined;
+    const bars = await getDailyCandlesV3(body.instrument_key, 30);
     if (bars.length >= 6) {
-      const today = bars[bars.length - 1]?.close;
-      const fiveBack = bars[bars.length - 6]?.close;
+      const today = bars.at(-1)?.close;
+      const fiveBack = bars.at(-6)?.close;
       if (
         typeof today === "number" &&
         typeof fiveBack === "number" &&
         today !== 0
       ) {
-        // Your requested denominator: today's close
         pct5d = ((today - fiveBack) / today) * 100;
-        // If you prefer the conventional base, use: ((today - fiveBack) / fiveBack) * 100;
       }
     }
 
-    // 3) Insert into Airtable (use undefined instead of null)
     await table.create([
       {
         fields: {
