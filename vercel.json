@@ -3,11 +3,9 @@
 
   "functions": {
     "api/refresh-token.ts": {
-      "runtime": "edge",
       "maxDuration": 10
     },
     "api/webhook/upstox-token.ts": {
-      "runtime": "edge",
       "maxDuration": 10
     }
   },
