@@ -1,5 +1,18 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+
+  "functions": {
+    "api/refresh-token.ts": {
+      "runtime": "nodejs20.x",
+      "maxDuration": 10
+    },
+
+    "api/webhook/upstox-token.ts": {
+      "runtime": "nodejs20.x",
+      "maxDuration": 10
+    }
+  },
+
   "crons": [
     {
       "path": "/api/refresh-token",
