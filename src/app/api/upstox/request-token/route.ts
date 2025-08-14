@@ -9,8 +9,8 @@ import { NextResponse } from "next/server";
  * Confirm the current endpoint in docs/Postman; this follows Upstox guidance.
  */
 export async function GET() {
-  const clientId = process.env.UPSTOX_CLIENT_ID!;
-  const clientSecret = process.env.UPSTOX_CLIENT_SECRET!;
+  const clientId = process.env.UPSTOX_API_KEY!;
+  const clientSecret = process.env.UPSTOX_SECRET_KEY!;
 
   // As of their docs, the request is initiated server-to-server.
   // Endpoint shape is per Upstox "Access Token Request" docs.
