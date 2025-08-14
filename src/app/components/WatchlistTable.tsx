@@ -57,9 +57,9 @@ function WatchlistRow({
         {isLoading ? "…" : prevClose != null ? `₹${prevClose.toFixed(2)}` : "—"}
       </td>
 
-      <td className={cell}>
+      {/* <td className={cell}>
         {isLoading ? "…" : price != null ? `₹${price.toFixed(2)}` : "—"}
-      </td>
+      </td> */}
 
       <td className={`${cell} ${color(pct5d)}`}>
         {pct5d != null ? `${pct5d.toFixed(2)} %` : "—"}
@@ -110,7 +110,7 @@ export default function WatchlistTable() {
       <thead className="border-b-2 border-gray-200">
         <tr className="text-center text-lg font-semibold">
           <th className="p-2">Symbol</th>
-          <th className="p-2">Prev&nbsp;Close</th>
+          {/* <th className="p-2">Prev&nbsp;Close</th> */}
           <th className="p-2">Current&nbsp;Price</th>
           <th className="p-2">%&nbsp;5-Day</th>
           <th className="p-2">Anchor&nbsp;Price</th>
