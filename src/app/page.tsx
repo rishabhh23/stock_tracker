@@ -5,6 +5,7 @@ import SearchBar from "@/app/components/TickerSearch/SearchBar";
 import WatchlistTable from "@/app/components/WatchlistTable";
 import useWatchlist from "@/app/hooks/useWatchlist";
 import { Instrument } from "@/app/types";
+import Footer from "./components/Footer";
 
 export default function Home() {
   const { mutate } = useWatchlist();
@@ -31,7 +32,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen flex flex-col items-center bg-growwBg text-black px-4 sm:px-8 lg:px-10 py-8">
-      <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold mt-6 mb-10 text-center leading-tight tracking-wide">
+      <h1 className="text-5xl sm:text-4xl lg:text-7xl font-extrabold mt-6 mb-10 text-center leading-tight tracking-wide">
         Live&nbsp;Price&nbsp;Tracker
       </h1>
 
@@ -50,6 +51,10 @@ export default function Home() {
 
       <div className="w-full rounded-lg max-w-7xl mt-12 overflow-x-auto text-xl sm:text-2xl">
         <WatchlistTable />
+      </div>
+
+      <div className="w-full mt-12 text-center text-gray-500">
+        <Footer />
       </div>
     </main>
   );
