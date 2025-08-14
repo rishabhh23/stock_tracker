@@ -32,7 +32,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen flex flex-col items-center bg-growwBg text-black px-4 sm:px-8 lg:px-10 py-8">
-      <h1 className="text-5xl sm:text-4xl lg:text-7xl font-extrabold mt-6 mb-10 text-center leading-tight tracking-wide">
+      <h1 className="text-3xl sm:text-4xl lg:text-7xl font-extrabold mt-6 mb-10 text-center leading-tight tracking-wide">
         Live&nbsp;Price&nbsp;Tracker
       </h1>
 
